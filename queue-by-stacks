@@ -1,0 +1,97 @@
+package main
+
+import (
+	"fmt"
+)
+
+type Stack interface {
+	Len() int
+	Top() (interface{}, error)
+	Push(interface{}) error
+	Pop() (interface{}, error)
+}
+
+type Ints struct {
+	elements []int
+}
+
+func NewIntStack(elements []int) *Ints {
+	return &Ints{elements}
+}
+
+func (i *Ints) Len() int {
+	return len(i.elements)
+}
+
+func (i *Ints) Top() (result interface{}, err error) {
+	count := i.Len()
+	if count == 0 {
+		return 0, fmt.Errorf("empty ints stack. ")
+	}
+	
+	return i.elements[count-1], nil
+}
+
+func (i *Ints) Push(v interface{}) (err error) {
+	i.elements = append(i.elements, v.(int))
+	return nil
+}
+
+func (i *Ints) Pop() (result interface{}, err error) {
+	count := i.Len()
+	if count == 0 {
+		return nil, fmt.Errorf("empty ints stack. ")
+	}
+	
+	top := i.elements[count-1]
+	i.elements = i.elements[:count-1]
+	return top, nil
+}
+
+type QueueByTwoStacks struct {
+	s1, s2 *Ints
+}
+
+func NewQueue() *QueueByTwoStacks {
+	
+	s1, s2 := NewIntStack([]int{}), NewIntStack([]int{})
+	
+	return &QueueByTwoStacks{s1, s2}
+}
+
+
+func (q *QueueByTwoStacks ) Enqueue(n int) (err error) {
+	return q.s1.Push(n)
+}
+
+func (q *QueueByTwoStacks ) Dequeue() (result interface{}, err error) {
+	s1Len, s2Len := q.s1.Len(), q.s2.Len()
+	if s1Len == 0 && s2Len == 0 {
+		return nil, fmt.Errorf("both stacks empty. ")
+	}
+	
+	if s2Len > 0 {
+		return q.s2.Pop()
+	}
+
+	for q.s1.Len() > 0 {
+		top, _ := q.s1.Pop()
+		q.s2.Push(top)
+	}
+	
+	return q.s2.Pop()
+	
+}
+
+func main() {
+	q := NewQueue()
+	q.Enqueue(1)
+	q.Enqueue(2)
+	q.Enqueue(3)
+	v, _:= q.Dequeue()
+	fmt.Println(v)
+	v, _ = q.Dequeue()
+	fmt.Println(v)
+	v, _ = q.Dequeue()
+	fmt.Println(v)
+}
