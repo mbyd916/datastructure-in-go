@@ -8,7 +8,7 @@ type Stack interface {
 	Len() int
 	Top() (interface{}, error)
 	Push(interface{}) error
-	Pop() error
+	Pop() (interface{}, error)
 }
 
 type Ints struct {
@@ -24,11 +24,12 @@ func (i *Ints) Len() int {
 }
 
 func (i *Ints) Top() (result interface{}, err error) {
-	if i.Len() == 0 {
+	count := i.Len()
+	if count == 0 {
 		return 0, fmt.Errorf("empty ints stack. ")
 	}
 	
-	return i.elements[0], nil
+	return i.elements[count-1], nil
 }
 
 func (i *Ints) Push(v interface{}) (err error) {
@@ -36,13 +37,15 @@ func (i *Ints) Push(v interface{}) (err error) {
 	return nil
 }
 
-func (i *Ints) Pop() (err error) {
-	if i.Len() == 0 {
-		return fmt.Errorf("empty ints stack. ")
+func (i *Ints) Pop() (result interface{}, err error) {
+	count := i.Len()
+	if count == 0 {
+		return nil, fmt.Errorf("empty ints stack. ")
 	}
 	
-	i.elements = i.elements[1:]
-	return nil
+	top := i.elements[count-1]
+	i.elements = i.elements[:count-1]
+	return top, nil
 }
 
 
@@ -52,6 +55,8 @@ func main() {
 	var s Stack = nums
 	fmt.Println(s.Top())
 	s.Push(4)
+	s.Push(5)
+	s.Push(6)
 	fmt.Println(nums)
 	s.Pop()
 	fmt.Println(nums)
